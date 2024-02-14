@@ -1,7 +1,204 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Homework 1 index.html here
-	</body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+  <style>
+    body {
+      padding: 100px;
+      width: 1000px;
+      margin: auto;
+      text-align: left;
+      font-weight: 300;
+      font-family: 'Open Sans', sans-serif;
+      color: #121212;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: 'Source Sans Pro', sans-serif;
+    }
+  </style>
+  <title>CS 184/284A Rasterizer</title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+</head>
+
+
+<body>
+
+  <h1 align="middle">CS 184/284A: Computer Graphics and Imaging, Spring 2024</h1>
+  <h1 align="middle">Homework 1: Rasterizer</h1>
+  <h2 align="middle">Arjun Patrawala</h2>
+
+  <br><br>
+
+  <div>
+
+    <h2 align="middle">Overview</h2>
+    <p>Give a high-level overview of what you implemented in this homework Think about what you've built as a whole.
+      Share your thoughts on what interesting things you've learned from completing the homework.</p>
+
+    <h2 align="middle">Section I: Rasterization</h2>
+
+    <h3 align="middle">Part 1: Rasterizing single-color triangles</h3>
+
+    <p>My code works as follows: it computes a bounding box of the triangle using the given coordinates. It then starts
+      at the first line and computes the intersection to the next line of the triangle. It jumps to that intersection.
+      It now computes the next intersection with the next line of the triangle. It will fill in the given color until
+      that next intersection and then move to the next line. This results in an algorithm that is often about 5x faster
+      than rasterizing a triangle using a simple test in all pixels in the bounding box because calculations only need
+      to be performed twice per line.
+    </p>
+
+
+    Here are time comparisons at 16 samples per image:<br><br>
+    <table>
+      <tr>
+        <td>My Code</td>
+        <td>Standard Bounding Box Impl.</td>
+      </tr>
+      <tr>
+        <td>~35 ms</td>
+        <td>~180 ms</td>
+      </tr>
+    </table>
+
+    Here is an example image:<br><br>
+
+    <img style="width: 400px;" src="images/part1/one.png">
+
+
+    <h3 align="middle">Part 2: Antialiasing triangles</h3>
+
+    To supersample, I made my sample buffer sample_rate times bigger. I then rasterized my triangles in this larger
+    buffer by multiplying all of the coordinates by sqrt_sample_rate. In the resolve_to_framebuffer() function, I take
+    the average of the sample_rate pixels which are grouped together in square blocks. Supersampling is useful because
+    it reduces jaggies and results in a nicer looking image. Below, we have the images at 1, 4, and 16 sample rate,
+    respectively.
+
+    We see this improvement because we are introducing a gradient for areas that are normally binary colored.
+
+    <br><br>
+    <img style="width: 400px;" src="images/part2/one.png">
+    <img style="width: 400px;" src="images/part2/four.png">
+    <img style="width: 400px;" src="images/part2/sixteen.png">
+
+
+
+    <h3 align="middle">Part 3: Transforms</h3>
+
+    My robot is lifting weights and getting HUGE. Take a look:<br><br>
+
+    <img style="width: 400px;" src="images/part3/screenshot_2-13_23-43-6.png">
+
+    <h2 align="middle">Section II: Sampling</h2>
+
+    <h3 align="middle">Part 4: Barycentric coordinates</h3>
+
+    Barycentric coordinates allow us to index coordinates from the corners of the triangle. We can think of alpha, beta,
+    and gamma (the barycentric coordiantes) to be some weight of the distance from each of the corners s.t. alpha + beta
+    + gamma = 1 and alpha, beta, gamma >= 0. Look at the below triangle png for an example of what this looks like when
+    we apply a gradient using barycentric coordiantes:<br><br>
+
+    <img style="width: 500px;" src="images/part4/screenshot_2-13_23-49-36.png"><br><br>
+
+
+    Here is the color wheel (basic/test7.svg):<br><br>
+    <img style="width: 500px;" src="images/part4/screenshot_2-14_0-28-15.png">
+
+
+    <h3 align="middle">Part 5: "Pixel sampling" for texture mapping</h3>
+
+    To sample from a texture, we have some function that maps (x, y) coordiantes of pixels to (u, v) coordinates of the
+    texture. (u, v) may not be integers; they may be some decimal. We have two options. One is we can round (u, v) to
+    the nearest pixel (to the nearest integers). Other option is we can take some sample of the nearest four pixels
+    weighted by how close (u, v) is to each respective pixel. We have implemented both methods for this problem.
+
+
+    <table style="width:100%;">
+      <h2>1 sample per pixel</h2>
+      <tr>
+        <td>
+          <img style="width: 500px;" src="images/part5/bilinear.png">
+          <figcaption>Bilinear</figcaption>
+        </td>
+        <td>
+          <img style="width: 500px;" src="images/part5/nearest.png">
+          <figcaption>Nearest</figcaption>
+        </td>
+      </tr>
+    </table>
+    <table>
+      <h2>16 sample per pixel </h2>
+      <tr>
+        <td>
+          <img style="width: 500px;" src="images/part5/bilinear16.png">
+          <figcaption>Bilinear</figcaption>
+        </td>
+        <td>
+          <img style="width: 500px;" src="images/part5/nearest16.png">
+          <figcaption>Nearest</figcaption>
+        </td>
+      </tr>
+    </table>
+
+    <br><br>
+
+    When viewing textures at sharp angles, especially along edges or diagonals, bilinear filtering tends to produce
+    smoother transitions between texels because it averages the colors of the nearest four texels. Therefore, we
+    generally see that bilinear produces better results at the expense of reduced computational efficiency. The examples
+    above aren't especially harsh angles, so we don't see terrible results when using nearest.
+
+    <h3 align="middle">Part 6: "Level sampling" with mipmaps for texture mapping</h3>
+
+    When using a mipmap, we have to decide on a mipmap level to use for each pixel. Many pixels will not fall squarely
+    on one mipmap and may fall in between two levels. We have a few options for dealing with this: 1. we can always
+    choose level 0 (no downsampling) 2. we can always choose the nearest level (int level = round(level_float)) 3. we
+    can interpolate between the two levels by getting a sample at both levels and interpolating between the colors we
+    receive.<br>
+
+    In this project, we have implemented all three. Samples per pixel is highly effective at reducing antialiasing.
+    Mipmap pixel sampling is very important when rasterizing textures at sharp angles, however some of the work pixel
+    sampling is already completed if some amount of level sampling is used. Level sampling will already downsample the
+    texture which will mean that the mipmap pixel sampling will be less effective at reducing antialiasing after using
+    nearest mipmap sampling. Samples per pixel is the most computationally and memory inefficient, requiring you to do
+    sample_rate times more work per frame and use sample_rate times more memory. Mipmap pixel and mipmap sampling are
+    all a constant addition in compute time per pixel and do not require any additional memory. It will be a matter of
+    testing and personal preference to determine which settings to use.
+
+    <table>
+      <tr>
+        <td>
+          <img style="width: 400px;" src="images/part6/one.png">
+          <figcaption>L_ZERO and P_NEAREST</figcaption>
+        </td>
+        <td><img style="width: 400px;" src="images/part6/two.png">
+          <figcaption>L_ZERO and P_LINEAR</figcaption>
+        </td>
+
+      </tr>
+
+      <tr>
+        <td><img style="width: 400px;" src="images/part6/three.png">
+          <figcaption>L_NEAREST and P_NEAREST</figcaption>
+        </td>
+
+        <td><img style="width: 400px;" src="images/part6/four.png">
+          <figcaption>L_NEAREST and P_LINEAR</figcaption>
+        </td>
+      </tr>
+
+    </table>
+
+
+
+    <h2 align="middle">Section III: Art Competition</h2>
+    <p>If you are not participating in the optional art competition, don't worry about this section!</p>
+
+    <h3 align="middle">Part 7: Draw something interesting!</h3>
+
+</body>
+
 </html>
