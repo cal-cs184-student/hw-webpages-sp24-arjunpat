@@ -1,7 +1,482 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Homework 2 index.html here
-	</body>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <style>
+    body {
+      background-color: white;
+      padding: 100px;
+      width: 1000px;
+      margin: auto;
+      text-align: left;
+      font-weight: 300;
+      font-family: 'Open Sans', sans-serif;
+      color: #121212;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: 'Source Sans Pro', sans-serif;
+    }
+
+    kbd {
+      color: #121212;
+    }
+  </style>
+  <title>CS 184 Mesh Edit</title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+  </script>
+
+</head>
+
+
+<body>
+
+  <h1 style="text-align: center;">CS 184: Computer Graphics and Imaging, Spring 2018</h1>
+  <h1 style="text-align: center;">Project 2: Mesh Edit</h1>
+  <h2 style="text-align: center;">Arjun Patrawala</h2>
+
+  <br><br>
+
+  <div>
+
+    <h2 style="text-align: center;">Overview</h2>
+    <p>
+      In this homework assignment, I implemented an algorithm for upscaling 3d mesh representations and implemented
+      Bezier curve evaluation.
+    </p>
+
+    <p>This website is hosted at: <a
+        href="https://cal-cs184-student.github.io/hw-webpages-sp24-arjunpat/hw2/">cal-cs184-student.github.io/hw-webpages-sp24-arjunpat/hw2/</a>
+    </p>
+    <br>
+
+
+    <h2 style="text-align: center;">Section I: Bezier Curves and Surfaces</h2>
+
+    <h3 style="text-align: center;">Part 1: Bezier Curves with 1D de Casteljau Subdivision</h3>
+
+
+    <b>
+      Briefly explain de Casteljau's algorithm and how you implemented it in order to evaluate Bezier curves.
+    </b>
+    <p>
+      I implemented de Casteljau's algorithm to evaluate Bezier curves. The algorithm basically computes a lerp between
+      every point using the parameter $t$. Each step of the evaluation reduces the number of points by one, until we get
+      to one point.
+    </p>
+    <br>
+
+
+    <b>
+      Take a look at the provided .bzc files and create your own Bezier curve with 6 control points of your choosing.
+      Use this Bezier curve for your screenshots below.
+    </b>
+    <!-- Example of including a single figure -->
+    <!-- <div style="text-align: center;">
+      <img src="images/your_file.png" style="text-align: center;" width="50%">
+    </div>
+    <br> -->
+
+    <b>
+      Show screenshots of each step / level of the evaluation from the original control points down to the final
+      evaluated point. Press <kbd>E</kbd> to step through. Toggle <kbd>C</kbd> to show the completed Bezier curve as
+      well.
+    </b>
+    <!-- Example of including multiple figures -->
+    <div style="text-align: center;">
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="text-align: center;">
+            <img src="img/part1/1.png" width="400px" />
+            <figcaption>Level 0</figcaption>
+          </td>
+          <td style="text-align: center;">
+            <img src="img/part1/2.png" width="400px" />
+            <figcaption>Level 1</figcaption>
+          </td>
+        </tr>
+        <tr style="height: 20px;">
+        </tr>
+        <tr>
+          <td style="text-align: center;">
+            <img src="img/part1/3.png" width="400px" />
+            <figcaption>Level 2</figcaption>
+          </td>
+          <td style="text-align: center;">
+            <img src="img/part1/4.png" width="400px" />
+            <figcaption>Level 3</figcaption>
+          </td>
+        </tr>
+        <tr style="height: 20px;">
+        </tr>
+        <tr>
+          <td style="text-align: center;">
+            <img src="img/part1/5.png" width="400px" />
+            <figcaption>Level 4</figcaption>
+          </td>
+          <td style="text-align: center;">
+            <img src="img/part1/6.png" width="400px" />
+            <figcaption>Level 5</figcaption>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: center;">
+            <img src="img/part1/7.png" width="400px" />
+            <figcaption>Level 6</figcaption>
+          </td>
+          <td style="text-align: center;">
+            <img src="img/part1/8.png" width="400px" />
+            <figcaption>Level 7</figcaption>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <br>
+
+
+    <h3 style="text-align: center;">Part 2: Bezier Surfaces with Separable 1D de Casteljau</h3>
+    <b>
+      Briefly explain how de Casteljau algorithm extends to Bezier surfaces and how you implemented it in order to
+      evaluate Bezier surfaces.
+    </b>
+    <p>
+      We can run Casteljau's algorithm on each row of a 3d mesh to get a point for each row. Then we can run Casteljau's
+      algorithm again on the points for each row in order to produce a point for the column. This is basically what my
+      code does; it is like 5 lines long.
+    </p>
+    <br>
+
+
+    <b>
+      Show a screenshot of bez/teapot.bez (not .dae) evaluated by your implementation.
+    </b>
+    <p>
+      <img src="img/part1/teapot.png" width="400px">
+    </p>
+    <br>
+
+
+    <h2 style="text-align: center;">Section II: Triangle Meshes and Half-Edge Data Structure</h2>
+
+    <h3 style="text-align: center;">Part 3: Area-Weighted Vertex Normals</h3>
+
+    <b>
+      Briefly explain how you implemented the area-weighted vertex normals.
+    </b>
+    <p>
+      I added a new function called normal_area to the Face class which efficiently computes the cross product of the
+      two edges of the triangle, dividing the resultant vector by 2 so that its magnitude is the area of the triangle.
+      Then, in Vector::normal, I iterate through the faces connected to the vertex and sum together the verticies. Then
+      I return the normalized version of that vector. Because the magnitude of these vectors is the area of the given
+      triangle, we get an area-weighted normal vector.
+    </p>
+    <br>
+
+
+    <b>
+      Show screenshots of dae/teapot.dae (not .bez) comparing teapot shading with and without vertex normals. Use
+      <kbd>Q</kbd> to toggle default flat shading and Phong shading.
+    </b>
+    <p>
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center;">
+          <img src="img/part3/one.png" width="400px" />
+          <figcaption>Without normal vectors</figcaption>
+        </td>
+        <td style="text-align: center;">
+          <img src="img/part3/phong.png" width="400px" />
+          <figcaption>With phong shading</figcaption>
+        </td>
+      </tr>
+    </table>
+
+    </p>
+    <br>
+
+
+    <h3 style="text-align: center;">Part 4: Edge Flip</h3>
+    <b>
+      Briefly explain how you implemented the edge flip operation and describe any interesting implementation /
+      debugging tricks you have used.
+    </b>
+    <p>
+      I relied heavily on the diagram from the linked CMU document
+      (http://15462.courses.cs.cmu.edu/fall2015content/misc/HalfedgeEdgeOpImplementationGuide.pdf). This proved to be
+      immensely helpful. Following the diagram and assigning everything systematically meant that my code worked after
+      the first try.
+    </p>
+    <br>
+
+
+    <b>
+      Show screenshots of the teapot before and after some edge flips.
+    </b>
+    <p>
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center;">
+          <img src="img/part4/before.png" width="400px" />
+          <figcaption>Before flips</figcaption>
+        </td>
+        <td style="text-align: center;">
+          <img src="img/part4/after.png" width="400px" />
+          <figcaption>After flips</figcaption>
+        </td>
+      </tr>
+    </table>
+    </p>
+    <br>
+
+
+    <b>
+      Write about your eventful debugging journey, if you have experienced one.
+    </b>
+    <p>
+      No debugging needed! Worked first try! Yay!
+    </p>
+    <br>
+
+
+    <h3 style="text-align: center;">Part 5: Edge Split</h3>
+    <b>
+      Briefly explain how you implemented the edge split operation and describe any interesting implementation /
+      debugging tricks you have used.
+    </b>
+    <p>
+      Similarly, I implemented this systematically. I wrote out a diagram on my iPad and determined the names of the new
+      objects I needed. I created them in code and then hooked up every parameter of each object. My code worked on the
+      second try, after fixing one bug. I didn't realize that I needed to call the newHalfedge(), newFace() methods etc.
+      so I just created new objects. When I did this, I knew that this seems suspicious, so when I got a segfault, I
+      looked deeper into this issue and found the methods that I needed to call.
+    </p>
+    <br>
+
+
+    <b>
+      Show screenshots of a mesh before and after some edge splits.
+    </b>
+    <p>
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center;">
+          <img src="img/part5/before.png" width="400px" />
+          <figcaption>Before splits</figcaption>
+        </td>
+        <td style="text-align: center;">
+          <img src="img/part5/after.png" width="400px" />
+          <figcaption>After splits</figcaption>
+        </td>
+      </tr>
+    </table>
+    </p>
+    <br>
+
+
+    <b>
+      Show screenshots of a mesh before and after a combination of both edge splits and edge flips.
+    </b>
+    <p>
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center;">
+          <img src="img/part5/before.png" width="400px" />
+          <figcaption>Before splits and flips</figcaption>
+        </td>
+        <td style="text-align: center;">
+          <img src="img/part5/afterboth.png" width="400px" />
+          <figcaption>After splits and flips</figcaption>
+        </td>
+      </tr>
+    </table>
+    </p>
+    <br>
+
+
+    <b>
+      Write about your eventful debugging journey, if you have experienced one.
+    </b>
+    <p>
+      Not too much to discuss. Just got a segfault, did some binary search to find the problematic line using binary
+      search. Then found that I wasn't initializing objects correctly. Fixed that, and it worked.
+    </p>
+    <br>
+
+
+    <b>
+      If you have implemented support for boundary edges, show screenshots of your implementation properly handling
+      split operations on boundary edges.
+    </b>
+    <p>
+      Not applicable
+    </p>
+    <br>
+
+
+    <h3 style="text-align: center;">Part 6: Loop Subdivision for Mesh Upsampling</h3>
+    <b>
+      Briefly explain how you implemented the loop subdivision and describe any interesting implementation / debugging
+      tricks you have used.
+    </b>
+    <p>
+      I followed the steps outlined in the code. I first computed the vertex positions associated with original
+      verticies, then computed the same for edges. I split all of the old edges, making sure I didn't split too many
+      edges by keeping track of how many edges I had split and using the fact that the edge data structure is a linked
+      list. Then I flipped new edges that didn't already connect two new verticies and updated the vertex locations.<br>
+      Luckily, my code worked on the first try!
+    </p>
+    <br>
+
+
+    <b>
+      Take some notes, as well as some screenshots, of your observations on how meshes behave after loop subdivision.
+      What happens to sharp corners and edges? Can you reduce this effect by pre-splitting some edges?
+    </b>
+    <p>
+      Looking at some of the files in dae/icosahedron folder, we can see more clearly that we lose corners and sharp
+      edges. Observe the following:
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center;">
+          <img src="img/part6/dream/before.png" width="400px" />
+          <figcaption>Before</figcaption>
+        </td>
+        <td style="text-align: center;">
+          <img src="img/part6/dream/after.png" width="400px" />
+          <figcaption>After</figcaption>
+        </td>
+      </tr>
+    </table>
+
+
+
+    We can reduce some of this by creating more triangles in the mesh before upsampling. Observe the results with
+    pre-splitting:
+
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center;">
+          <img src="img/part6/dream/presplit.png" width="400px" />
+          <figcaption>Pre splits</figcaption>
+        </td>
+        <td style="text-align: center;">
+          <img src="img/part6/dream/improvment.png" width="400px" />
+          <figcaption>Result (minor improvement)</figcaption>
+        </td>
+      </tr>
+    </table>
+    </p>
+    <br>
+
+
+    <b>
+      Load dae/cube.dae. Perform several iterations of loop subdivision on the cube. Notice that the cube becomes
+      slightly asymmetric after repeated subdivisions. Can you pre-process the cube with edge flips and splits so that
+      the cube subdivides symmetrically? Document these effects and explain why they occur. Also explain how your
+      pre-processing helps alleviate the effects.
+    </b>
+    <p>
+      We observe this phenomena because certain triangles in a cube, when split, will create triangles that lay at the
+      corner of the cube. This means that those corners will get flattened out. However, other triangles will be split
+      in a way where the triangle continues to look like a protrusion. The ensure that the cube subdivides
+      symmetrically, you have to make sure that the mesh triangle structure is symmetric prior to upscaling. This can be
+      done by pre-processing it with splits that make it symmetric.
+
+
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center;">
+          <img src="img/part6/cube.png" width="400px" />
+          <figcaption>The cube</figcaption>
+        </td>
+        <td style="text-align: center;">
+          <img src="img/part6/nopresplit.png" width="400px" />
+          <figcaption>Upsample without presplitting</figcaption>
+        </td>
+      </tr>
+      <tr style="height: 20px;">
+      </tr>
+      <tr>
+        <td style="text-align: center;">
+          <img src="img/part6/splits.png" width="400px" />
+          <figcaption>Made these splits</figcaption>
+        </td>
+        <td style="text-align: center;">
+          <img src="img/part6/l.png" width="400px" />
+          <figcaption>Upsample with presplitting (1x)</figcaption>
+        </td>
+      </tr>
+      <tr style="height: 20px;">
+      </tr>
+      <tr>
+        <td style="text-align: center;">
+          <img src="img/part6/ll.png" width="400px" />
+          <figcaption>Upsample with presplittings (2x)</figcaption>
+        </td>
+        <td style="text-align: center;">
+          <img src="img/part6/lll.png" width="400px" />
+          <figcaption>Upsample with presplitting (3x)</figcaption>
+        </td>
+      </tr>
+    </table>
+    </p>
+    <br>
+
+
+    <b>
+      If you have implemented any extra credit extensions, explain what you did and document how they work with
+      screenshots.
+    </b>
+    <p>
+      YOUR RESPONSE GOES HERE
+    </p>
+    <br>
+
+
+    <h3 style="text-align: center;">Part 7 (Optional, Possible Extra Credit)</h3>
+    <b>
+      Save your best polygon mesh as partsevenmodel.dae in your docs folder and show us a screenshot of the mesh in your
+      write-up.
+    </b>
+    <p>
+      YOUR RESPONSE GOES HERE
+    </p>
+    <br>
+
+
+    <b>
+      Include a series of screenshots showing your original mesh and your mesh after one and two rounds of subdivision.
+      If you have used custom shaders, include screenshots of your mesh with those shaders applied as well.
+    </b>
+    <p>
+      YOUR RESPONSE GOES HERE
+    </p>
+    <br>
+
+
+    <b>
+      Describe what you have done to enhance your mesh beyond the simple humanoid mesh described in the tutorial.
+    </b>
+    <p>
+      YOUR RESPONSE GOES HERE
+    </p>
+    <br>
+
+
+</body>
+
 </html>
