@@ -1,7 +1,364 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Homework 4 index.html here
-	</body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+  <style>
+    body {
+      padding: 100px;
+      width: 1000px;
+      margin: auto;
+      text-align: left;
+      font-weight: 300;
+      font-family: 'Open Sans', sans-serif;
+      color: #121212;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: 'Source Sans Pro', sans-serif;
+    }
+  </style>
+  <title>CS 184 Cloth Simulation</title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+</head>
+
+
+<body>
+
+  <h1 style="text-align: center;">CS 184: Computer Graphics and Imaging, Spring 2017</h1>
+  <h1 style="text-align: center;">Project 4: Cloth Simulator</h1>
+  <h2 style="text-align: center;">Arjun Patrawala, CS184</h2>
+  <h2 style="text-align: center;"><a
+      href="https://cal-cs184-student.github.io/hw-webpages-sp24-arjunpat/hw4/">https://cal-cs184-student.github.io/hw-webpages-sp24-arjunpat/hw4/</a>
+  </h2>
+
+  <br><br>
+
+  <div>
+
+    <h2 style="text-align: center;">Overview</h2>
+    <p>In this project, we implemented cloth simulation by modeling it using a spring mass system. Additionally, we
+      implemented GPU shaders to render the cloth more quickly than CPU simulation.</p>
+
+    <h2 style="text-align: center;">Part I: Masses and springs</h2>
+    <div style="text-align: center;">
+      <table style="width:100%">
+        <!-- Header -->
+        <!-- <tr style="text-align: center;">
+          <th>
+            <b>Uniform Hemisphere Sampling</b>
+          </th>
+          <th>
+            <b>Light Sampling</b>
+          </th>
+        </tr>
+        <br> -->
+        <tr style="text-align: center;">
+          <td>
+            <img src="part1/all1.png" style="text-align: center;" width="400px" />
+            <figcaption>pinned2.json - showing the wireframe structure</figcaption>
+          </td>
+          <td>
+            <img src="part1/all2.png" style="text-align: center;" width="400px" />
+            <figcaption>another photo with all constraints</figcaption>
+          </td>
+        </tr>
+        <br>
+        <tr style="text-align: center;">
+          <td>
+            <img src="part1/noshearing.png" style="text-align: center;" width="400px" />
+            <figcaption>without any shearing constraints</figcaption>
+          </td>
+          <td>
+            <img src="part1/onlyshearing.png" style="text-align: center;" width="400px" />
+            <figcaption>with only shearing constraints</figcaption>
+          </td>
+        </tr>
+        <br>
+      </table>
+    </div>
+
+    <h2 style="text-align: center;">Part II: Simulation via numerical integration</h2>
+
+    <p>A lower spring constant (ks = 500) results in a cloth that is a lot more elastic and looks more like an apron
+      becuase it sags a lot. Observe this phenomenon in the figure below. A higher spring constant (ks = 50000) results
+      in cloth that is a lot more rigid and looks
+      like a pillow or a piece of paper.</p>
+
+    <table style="width:100%">
+      <tr style="text-align: center;">
+        <td>
+          <img src="part2/highks.png" style="text-align: center;" width="400px" />
+          <figcaption>ks = 50000</figcaption>
+        </td>
+        <td>
+          <img src="part2/lowks.png" style="text-align: center;" width="400px" />
+          <figcaption>ks = 500</figcaption>
+        </td>
+      </tr>
+      <br>
+    </table>
+
+    <p>A lower desnity makes the cloth appear more like a feather. It constributes to the rigidness and paper-like
+      quality of the cloth (becuase the springs are fully capable of supporting the weight of the cloth). A higher
+      density makes the cloth seem like a dense x-ray protection blanket or a thick trenchcoat. It moves more slowly and
+      sags more. The effect of density is most noticable when the cloth is moving (animation). Observe that this sagging
+      is different from the sagging with a lower spring constant. The sagging occurs most promiently in the middle
+      section because there is a lot of weight there that folds over each other and is not supported by the pins and
+      springs.</p>
+
+    <table style="width:100%">
+      <tr style="text-align: center;">
+        <td>
+          <img src="part2/lowdensity.png" style="text-align: center;" width="400px" />
+          <figcaption>density = 5</figcaption>
+        </td>
+        <td>
+          <img src="part2/highdensity.png" style="text-align: center;" width="400px" />
+          <figcaption>density = 50</figcaption>
+        </td>
+      </tr>
+      <br>
+    </table>
+
+    <p>Lower damping means that the cloth disappates energy more slowly. This means that the cloth retains the energy
+      needed to bounce around for a while after initially falling. If the damping is really low, the cloth will continue
+      to bounce around for a while after falling. Observe a screenshot of this phenomenon below. On the contrary, a
+      higher damping means that the cloth will fall down pretty slowly after falling and not bounce around. It will move
+      to its final position and stop moving.</p>
+
+    <table style="width:100%">
+      <tr style="text-align: center;">
+        <td>
+          <img src="part2/damp_low.png" style="text-align: center;" width="400px" />
+          <figcaption>damp = ~0.1%</figcaption>
+        </td>
+        <td>
+          <img src="part2/damp_high.png" style="text-align: center;" width="400px" />
+          <figcaption>damp = ~0.50%</figcaption>
+        </td>
+      </tr>
+      <br>
+    </table>
+
+
+    <p>Here is a screenshot of the shaded cloth scene from scene/pinned4.json in its final resting state using the
+      default parameters.</p>
+
+    <img src="part2/final.png" style="text-align: center;" width="400px" />
+
+    <h2 style="text-align: center;">Part III: Handling collisions with other objects</h2>
+
+    <p>Observe that a higher ks results in a cloth that is more rigid and holds its shape better, especially while
+      sitting on a sphere. A lower ks means that the springs have less response when they are pulled on by other forces
+      (like gravity) and the cloth is more elastic. We can see that when ks = 500, the cloth is practically sagging on
+      the sphere.</p>
+
+    <table style="width:100%">
+      <tr style="text-align: center;">
+        <td>
+          <img src="part3/500.png" style="text-align: center;" width="400px" />
+          <figcaption>ks = 500</figcaption>
+        </td>
+        <td>
+          <img src="part3/5000.png" style="text-align: center;" width="400px" />
+          <figcaption>ks = 5000</figcaption>
+        </td>
+      </tr>
+      <tr style="text-align: center;">
+        <td>
+          <img src="part3/50000.png" style="text-align: center;" width="400px" />
+          <figcaption>ks = 50000</figcaption>
+        </td>
+      </tr>
+      <br>
+    </table>
+
+    <p>Here is a screenshot of the cloth lying peacefully at rest on the plane.</p>
+
+    <img src="part3/plane.png" style="text-align: center;" width="400px" />
+
+    <h2 style="text-align: center;">Part IV: Handling self-collisions</h2>
+
+    <p>Obseve the progression of the cloth falling and folding on itself.</p>
+    <table style="width:100%">
+      <tr style="text-align: center;">
+        <td>
+          <img src="part4/fall1.png" style="text-align: center;" width="400px" />
+        </td>
+        <td>
+          <img src="part4/fall2.png" style="text-align: center;" width="400px" />
+        </td>
+      </tr>
+      <tr style="text-align: center;">
+        <td>
+          <img src="part4/fall3.png" style="text-align: center;" width="400px" />
+        </td>
+        <td>
+          <img src="part4/fall4.png" style="text-align: center;" width="400px" />
+        </td>
+      </tr>
+      <tr style="text-align: center;">
+        <td>
+          <img src="part4/fall5.png" style="text-align: center;" width="400px" />
+        </td>
+        <td>
+          <img src="part4/fall6.png" style="text-align: center;" width="400px" />
+        </td>
+      </tr>
+      <br>
+    </table>
+
+    <p>We observed that a lower spring constant (ks = 500) results in a cloth that folds upon itself many more times
+      (10-12) vs a higher spring constant (ks = 50000) which makes 3-4 large rigid folds.</p>
+
+    <table style="width:100%">
+      <tr style="text-align: center;">
+        <td>
+          <img src="part4/ks500.png" style="text-align: center;" width="400px" />
+          <figcaption>ks = 500</figcaption>
+        </td>
+        <td>
+          <img src="part4/ks50000.png" style="text-align: center;" width="400px" />
+          <figcaption>ks = 5000</figcaption>
+        </td>
+      </tr>
+      <br>
+    </table>
+
+    <p>We observe almost a perfectly inverse phenomenon with the density of the cloth. This makes sense to some degree
+      becuase a higher density effectively results in a "lower" spring constant because the same spring will have more
+      mass to keep together and vice versa.</p>
+
+    <table style="width:100%">
+      <tr style="text-align: center;">
+        <td>
+          <img src="part4/density5.png" style="text-align: center;" width="400px" />
+          <figcaption>density = 5</figcaption>
+        </td>
+        <td>
+          <img src="part4/density50.png" style="text-align: center;" width="400px" />
+          <figcaption>density = 50</figcaption>
+        </td>
+      </tr>
+      <br>
+    </table>
+
+
+    <h2 style="text-align: center;">Part V: Shaders</h2>
+
+    <p>A shader program comes in two parts: vertex and fragment. A vertex shader takes a vertex and computes the
+      vertex's position in the world while also computing the tangent, normal vecs + other information, as needed.
+      Sometimes vertex shaders can be involved with changing the position of the vertex as well. The vertex shader
+      output is fed to the fragment shader which applies textures and light shading.</p>
+
+    <p>The Blinn-Phong shading model is an empirical light model to calculate the light reflected from a point on a
+      surface. It combines ambient, diffuse, and specular lighting components to approximate the appearance of a shiny
+      surface.</p>
+
+    <table style="width:100%">
+      <tr style="text-align: center;">
+        <td>
+          <img src="part5/phong.png" style="text-align: center;" width="400px" />
+          <figcaption>All components</figcaption>
+        </td>
+        <td>
+          <img src="part5/phong_amb.png" style="text-align: center;" width="400px" />
+          <figcaption>Ambient component</figcaption>
+        </td>
+      </tr>
+      <tr style="text-align: center;">
+        <td>
+          <img src="part5/phong_diff.png" style="text-align: center;" width="400px" />
+          <figcaption>Diffuse component</figcaption>
+        </td>
+        <td>
+          <img src="part5/phong_spec.png" style="text-align: center;" width="400px" />
+          <figcaption>Specular component</figcaption>
+        </td>
+      </tr>
+      <br>
+    </table>
+
+
+    <p>We modified the texture to be an image of the transformer's model.</p>
+    <img src="part5/transformer.png" style="text-align: center;" width="400px" />
+
+    <p>Bump mapping</p>
+    <table style="width:100%">
+      <tr style="text-align: center;">
+        <td>
+          <img src="part5/sphere_bump.png" style="text-align: center;" width="500px" />
+          <figcaption>Bump mapping</figcaption>
+        </td>
+        <td>
+          <img src="part5/bump.png" style="text-align: center;" width="500px" />
+          <figcaption>Bump mapping with cloth</figcaption>
+        </td>
+      </tr>
+    </table>
+
+    <p>Below, observe the displacement matching texture approach. We see that the resulting render of the
+      displacement-mapped version looks quite bumpy, more so than the approach above where the vertices are not moved.
+      However, this comes at the cost of looking unnatural in some areas. The way the sphere is shaped is not super
+      realistic to real life.</p>
+
+    <img src="part5/sphere_displacement.png" style="text-align: center;" width="600px" />
+
+    <p>Bump with different resolutions. Observe that the lower resolution's sphere has a more hexagonal shape on the
+      boundries. This effect is generally only seen at the boundries.</p>
+
+    <table style="width:100%">
+      <tr style="text-align: center;">
+        <td>
+          <img src="part5/bump16.png" style="text-align: center;" width="500px" />
+          <figcaption>bump with o, a = 16</figcaption>
+        </td>
+        <td>
+          <img src="part5/bump128.png" style="text-align: center;" width="500px" />
+          <figcaption>bump with o, a = 128</figcaption>
+        </td>
+      </tr>
+    </table>
+
+
+    <p>Displacement with different resolutions. Observe that the lower resolution's sphere has a more hexagonal shape on
+      the
+      boundries. This effect is generally only seen at the boundries.</p>
+
+    <table style="width:100%">
+      <tr style="text-align: center;">
+        <td>
+          <img src="part5/displacement16.png" style="text-align: center;" width="500px" />
+          <figcaption>displacement with o, a = 16</figcaption>
+        </td>
+        <td>
+          <img src="part5/displacement128.png" style="text-align: center;" width="500px" />
+          <figcaption>displacement with o, a = 128</figcaption>
+        </td>
+      </tr>
+    </table>
+
+
+    <p>Here is a screenshot of the mirror shader on the cloth and on the sphere.</p>
+
+    <table style="width:100%">
+      <tr style="text-align: center;">
+        <td>
+          <img src="part5/mirror_1.png" style="text-align: center;" width="500px" />
+        </td>
+        <td>
+          <img src="part5/mirror_2.png" style="text-align: center;" width="500px" />
+        </td>
+      </tr>
+    </table>
+
+  </div>
+
+
+</body>
+
 </html>
